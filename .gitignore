@@ -418,4 +418,4 @@ FodyWeavers.xsd
 *.msp
 
 # Rider stuff
-.idea/*
+.idea/

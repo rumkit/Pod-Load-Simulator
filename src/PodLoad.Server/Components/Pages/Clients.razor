@@ -1,50 +1,82 @@
 ﻿@page "/clients"
+@implements IDisposable
+@using PodLoad.Server.Models
+@using PodLoad.Server.Services
+
 <PageTitle>Clients</PageTitle>
 
 
-@* <MudText HtmlTag="span">Item: @_selectedItemText</MudText> *@
+<MudText HtmlTag="span">Item: @_selectedItemText</MudText>
 @* <MudText>Selected items (@selectedItems?.Count): @(selectedItems == null ? "" : string.Join(", ", selectedItems.OrderBy(x => x.Sign).Select(x => x.Sign)))</MudText> *@
-@* *@
-@* <MudTable @ref="_table" T="Element" Items="@Elements" MultiSelection="true" SelectionChangeable="_selectionChangeable" Hover="true" *@
-@*           @bind-SelectedItems="selectedItems" OnRowClick="@OnRowClick" SelectOnRowClick="@_selectOnRowClick"> *@
-@*     <HeaderContent> *@
-@*         <MudTh>Nr</MudTh> *@
-@*         <MudTh>Sign</MudTh> *@
-@*         <MudTh>Name</MudTh> *@
-@*         <MudTh>Position</MudTh> *@
-@*         <MudTh>Molar mass</MudTh> *@
-@*     </HeaderContent> *@
-@*     <RowTemplate> *@
-@*         <MudTd DataLabel="Nr">@context.Number</MudTd> *@
-@*         <MudTd DataLabel="Sign">@context.Sign</MudTd> *@
-@*         <MudTd DataLabel="Name">@context.Name</MudTd> *@
-@*         <MudTd DataLabel="Position">@context.Position</MudTd> *@
-@*         <MudTd DataLabel="Molar mass">@context.Molar</MudTd> *@
-@*     </RowTemplate> *@
-@*     <PagerContent> *@
-@*         <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }" /> *@
-@*     </PagerContent> *@
-@*     <FooterContent> *@
-@*         <MudTd colspan="5">Select All</MudTd> *@
-@*     </FooterContent> *@
-@* </MudTable> *@
-@* <MudSwitch @bind-Value="_selectOnRowClick" Color="Color.Primary">Select on row click</MudSwitch> *@
-@* <MudSwitch @bind-Value="_selectionChangeable" Color="Color.Primary">Selection is changeable</MudSwitch> *@
-@* @code { *@
-@*     private HashSet<Element> selectedItems = new HashSet<Element>(); *@
-@*     private IEnumerable<Element> Elements = new List<Element>(); *@
-@*     private bool _selectOnRowClick = true; *@
-@*     private bool _selectionChangeable = true; *@
-@*     private MudTable<Element> _table; *@
-@*     private string _selectedItemText = "No row clicked"; *@
-@* *@
-@*     protected override async Task OnInitializedAsync() *@
-@*     { *@
-@*         Elements = await httpClient.GetFromJsonAsync<List<Element>>("webapi/periodictable"); *@
-@*     } *@
-@* *@
-@*     void OnRowClick(TableRowClickEventArgs<Element> args) *@
-@*     { *@
-@*         _selectedItemText = $"{args.Item.Name} ({args.Item.Sign})"; *@
-@*     } *@
-@* } *@
+
+<MudTable T="ClientInfo" Items="@_elements"
+          MultiSelection="true"
+          SelectionChangeable="true"
+          Hover="true"
+          SelectOnRowClick="true">
+    <HeaderContent>
+        <MudTh>Id</MudTh>
+        <MudTh>Host Name</MudTh>
+        <MudTh>Ip Address</MudTh>
+        <MudTh>Last Seen</MudTh>
+        <MudTh>State</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="Host Name">@context.HostName</MudTd>
+        <MudTd DataLabel="Ip Address">@context.IpAddress</MudTd>
+        <MudTd DataLabel="Last seen">@context.LastUpdated</MudTd>
+        <MudTd DataLabel="State">@context.State</MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }" />
+    </PagerContent>
+</MudTable>
+
+@code {
+    private HashSet<ClientInfo> selectedItems = new ();
+    private List<ClientInfo> _elements = new ();
+    private string _selectedItemText = "No row clicked";
+    
+    [Inject] public IClientsInventoryService ClientsInventoryService { get; set; }
+
+    protected override void OnInitialized()
+    {
+        ClientsInventoryService.ClientAdded += AddClient;
+        ClientsInventoryService.ClientRemoved += RemoveClient;
+        ClientsInventoryService.ClientUpdated += UpdateClient;
+        _elements.AddRange(ClientsInventoryService.GetClients());
+    }
+
+    private void UpdateClient(object? sender, ClientInfo e)
+    {
+        var index = _elements.FindIndex(element => element.Id == e.Id);
+        _elements[index] = e;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void RemoveClient(object? sender, ClientInfo e)
+    {
+        _elements.Remove(_elements.First(element => element.Id == e.Id));
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void AddClient(object? sender, ClientInfo clientInfo)
+    {
+       _elements.Add(clientInfo);
+       InvokeAsync(StateHasChanged);
+    }
+
+    void OnRowClick(TableRowClickEventArgs<ClientInfo> args)
+    {
+        //_selectedItemText = $"{args.Item.Name} ({args.Item.Sign})";
+    }
+
+    public void Dispose()
+    {
+        ClientsInventoryService.ClientAdded -= AddClient;
+        ClientsInventoryService.ClientRemoved -= RemoveClient;
+        ClientsInventoryService.ClientUpdated -= UpdateClient;
+    }
+
+}

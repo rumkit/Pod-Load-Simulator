@@ -35,4 +35,6 @@ app.MapPost(
     (IClientsInventoryService clientsInventoryService, ClientReportRequest request) => clientsInventoryService.ProcessClientReport(request)
     );
 
+
+
 app.Run();
