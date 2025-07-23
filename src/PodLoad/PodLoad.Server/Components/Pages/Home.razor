@@ -1,0 +1,16 @@
+﻿@page "/"
+@using PodLoad.Common.Services
+@inject IHostInfoService HostInfoService
+
+<PageTitle>Server info</PageTitle>
+
+
+<div style="margin-bottom: 15px;"></div>
+<MudText Typo="Typo.h5" GutterBottom="true">Server info:</MudText>
+<br/>
+
+<MudAlert Severity="Severity.Success" Variant="Variant.Outlined" Elevation="1" ContentAlignment="HorizontalAlignment.Start">
+    Running on host: @HostInfoService.GetHostName()
+    <br/>
+    IP Address: @HostInfoService.GetHostIpv4Address()
+</MudAlert>

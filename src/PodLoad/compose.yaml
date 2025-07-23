@@ -1,0 +1,6 @@
+﻿services:
+  podload.client:
+    image: podload.client
+    build:
+      context: .
+      dockerfile: PodLoad.Client/Dockerfile
