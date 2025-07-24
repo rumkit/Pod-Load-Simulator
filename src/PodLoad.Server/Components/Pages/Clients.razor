@@ -39,10 +39,28 @@
         <MudTd DataLabel="Id">@context.Id</MudTd>
         <MudTd DataLabel="HostName">@context.HostName</MudTd>
         <MudTd DataLabel="IpAddress">@context.IpAddress</MudTd>
-        <MudTd DataLabel="LastSeen">@context.DesiredDelay.ToString("g")</MudTd>
-        <MudTd DataLabel="LastSeen">@context.DesiredMemoryAllocated</MudTd>
-        <MudTd DataLabel="LastSeen">@context.Delay.ToString("g")</MudTd>
-        <MudTd DataLabel="LastSeen">@context.MemoryAllocated</MudTd>
+        <MudTd DataLabel="DesiredDelay">
+        @if (context.DesiredDelay != context.Delay)
+        {
+            <MudBadge Color="Color.Warning" Dot="true" Origin="Origin.TopRight">@context.DesiredDelay.ToString("g")</MudBadge>
+        }
+        else
+        {
+            @context.DesiredDelay.ToString("g")   
+        }
+        </MudTd>
+        <MudTd DataLabel="DesiredMemory">
+            @if (context.DesiredMemoryAllocated != context.MemoryAllocated)
+            {
+                <MudBadge Color="Color.Warning" Dot="true" Origin="Origin.TopRight">@context.DesiredMemoryAllocated</MudBadge>
+            }
+            else
+            {
+                @context.DesiredMemoryAllocated   
+            }
+        </MudTd>
+        <MudTd DataLabel="Delay">@context.Delay.ToString("g")</MudTd>
+        <MudTd DataLabel="Memory">@context.MemoryAllocated</MudTd>
         <MudTd DataLabel="LastUpdated">@context.LastUpdated</MudTd>
         <MudTd DataLabel="State">
             <MudChip T="string" Variant="Variant.Filled" Color="@(context.State == ClientState.Active ? Color.Success : Color.Warning)">

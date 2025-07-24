@@ -6,7 +6,7 @@ public class ClientInfo
 {
     public Guid Id { get; set; }
     public string HostName { get; set; }
-    public IPAddress IpAddress { get; set; }
+    public string IpAddress { get; set; }
     public uint MemoryAllocated { get; set; }
     public uint DesiredMemoryAllocated { get; set; }
     public TimeSpan Delay { get; set; }
