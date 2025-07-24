@@ -9,8 +9,8 @@ public class ClientInfo
     public string IpAddress { get; set; }
     public uint MemoryAllocated { get; set; }
     public uint DesiredMemoryAllocated { get; set; }
-    public TimeSpan Delay { get; set; }
-    public TimeSpan DesiredDelay { get; set; }
+    public int Percentage { get; set; }
+    public int DesiredPercentage { get; set; }
     public DateTime LastUpdated { get; set; } = DateTime.Now;
 
     public ClientState State { get; set; } = ClientState.Active;

@@ -8,7 +8,7 @@ namespace PodLoad.Common.Contracts
         public Guid ClientId { get; set; }
         public string ClientHostName { get; set; }
         public string ClientIpAddress { get; set; }
-        public TimeSpan Delay { get; set; }
+        public int Percentage { get; set; }
         public uint MemoryAllocated { get; set; }
     }
 }

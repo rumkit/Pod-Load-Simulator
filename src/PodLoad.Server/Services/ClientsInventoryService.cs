@@ -27,7 +27,7 @@ public class ClientsInventoryService(
         {
             // Find an existing client, update TimeStamp and current params, then fire the event
             clientInfo.LastUpdated = DateTime.Now;
-            clientInfo.Delay = request.Delay;
+            clientInfo.Percentage = request.Percentage;
             clientInfo.MemoryAllocated = request.MemoryAllocated;
             clientInfo.State = ClientState.Active;
             
@@ -43,8 +43,8 @@ public class ClientsInventoryService(
                 HostName = request.ClientHostName,
                 IpAddress = request.ClientIpAddress,
                 // when creating new client desired params are set to actual values
-                Delay = request.Delay,
-                DesiredDelay = request.Delay,
+                Percentage = request.Percentage,
+                DesiredPercentage = request.Percentage,
                 MemoryAllocated = request.MemoryAllocated,
                 DesiredMemoryAllocated = request.MemoryAllocated
             };
@@ -56,7 +56,7 @@ public class ClientsInventoryService(
         
         return new ClientReportResponse()
         {
-            DesiredDelay = clientInfo.DesiredDelay,
+            DesiredPercentage = clientInfo.DesiredPercentage,
             DesiredMemoryAllocated = clientInfo.DesiredMemoryAllocated,
             KeepAliveInterval = _keepAliveInterval
         };

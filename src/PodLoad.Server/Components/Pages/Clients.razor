@@ -12,13 +12,13 @@
         <MudStack Reverse="true" Row="true">
             <MudButton Color="Color.Primary" Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.Check" 
                        Disabled="@(_selectedClientsCount == 0)" OnClick="@OnApplyButtonClicked">Set</MudButton>
-            <MudTextField T="uint" Label="Memory (Mb)" MaxLength="10" @bind-Value="_desiredMemory"></MudTextField>
-            <MudTextField T="uint" Label="Delay (ms)" @bind-Value="_desiredDelay"></MudTextField>
+            <MudTextField T="uint" Label="Memory" MaxLength="10" @bind-Value="_desiredMemory" Adornment="Adornment.End" AdornmentText="MB"/>
+            <MudTextField T="int" Label="Percentage" @bind-Value="_desiredPercentage" Adornment="Adornment.End" AdornmentText="%" Validation="@(new Func<int, IEnumerable<string>>(ValidatePercentage))"/>
         </MudStack>
     </MudToolBar>
 </MudPaper>
 
-<MudTable Elevation="10" T="ClientInfo" Items="@_elements" SelectedItems="@_selectedItems"
+<MudTable Elevation="10" T="ClientInfo" Items="@_clients" SelectedItems="@_selectedClients"
           MultiSelection="true"
           SelectionChangeable="true"
           Hover="true"
@@ -28,9 +28,9 @@
         <MudTh>Id</MudTh>
         <MudTh>Host Name</MudTh>
         <MudTh>Ip Address</MudTh>
-        <MudTh>Desired Delay</MudTh>
+        <MudTh>Desired Percentage</MudTh>
         <MudTh>Desired Memory</MudTh>
-        <MudTh>Actual Delay</MudTh>
+        <MudTh>Actual Percentage</MudTh>
         <MudTh>Actual Memory</MudTh>
         <MudTh>Last Seen</MudTh>
         <MudTh>State</MudTh>
@@ -39,14 +39,14 @@
         <MudTd DataLabel="Id">@context.Id</MudTd>
         <MudTd DataLabel="HostName">@context.HostName</MudTd>
         <MudTd DataLabel="IpAddress">@context.IpAddress</MudTd>
-        <MudTd DataLabel="DesiredDelay">
-        @if (context.DesiredDelay != context.Delay)
+        <MudTd DataLabel="DesiredPercentage">
+        @if (context.DesiredPercentage != context.Percentage)
         {
-            <MudBadge Color="Color.Warning" Dot="true" Origin="Origin.TopRight">@context.DesiredDelay.ToString("g")</MudBadge>
+            <MudBadge Color="Color.Warning" Dot="true" Origin="Origin.TopRight">@context.DesiredPercentage.ToString("g")</MudBadge>
         }
         else
         {
-            @context.DesiredDelay.ToString("g")   
+            @context.DesiredPercentage.ToString("g")   
         }
         </MudTd>
         <MudTd DataLabel="DesiredMemory">
@@ -59,7 +59,7 @@
                 @context.DesiredMemoryAllocated   
             }
         </MudTd>
-        <MudTd DataLabel="Delay">@context.Delay.ToString("g")</MudTd>
+        <MudTd DataLabel="Percentage">@context.Percentage.ToString("g")</MudTd>
         <MudTd DataLabel="Memory">@context.MemoryAllocated</MudTd>
         <MudTd DataLabel="LastUpdated">@context.LastUpdated</MudTd>
         <MudTd DataLabel="State">
@@ -77,11 +77,11 @@
 </MudTable>
 
 @code {
-    private HashSet<ClientInfo> _selectedItems = new ();
-    private List<ClientInfo> _elements = new ();
+    private readonly HashSet<ClientInfo> _selectedClients = [];
+    private readonly List<ClientInfo> _clients = [];
     private int _selectedClientsCount;
     private uint _desiredMemory;
-    private uint _desiredDelay;
+    private int _desiredPercentage;
 
     [Inject] public IClientsInventoryService ClientsInventoryService { get; set; }
 
@@ -90,7 +90,7 @@
         ClientsInventoryService.ClientAdded += AddClient;
         ClientsInventoryService.ClientRemoved += RemoveClient;
         ClientsInventoryService.ClientUpdated += UpdateClient;
-        _elements.AddRange(ClientsInventoryService.GetClients());
+        _clients.AddRange(ClientsInventoryService.GetClients());
     }
 
     private void UpdateClient(object? sender, ClientInfo e)
@@ -100,13 +100,13 @@
 
     private void RemoveClient(object? sender, ClientInfo e)
     {
-        _elements.Remove(_elements.First(element => element.Id == e.Id));
+        _clients.Remove(_clients.First(element => element.Id == e.Id));
         InvokeAsync(StateHasChanged);
     }
 
     private void AddClient(object? sender, ClientInfo clientInfo)
     {
-       _elements.Add(clientInfo);
+       _clients.Add(clientInfo);
        InvokeAsync(StateHasChanged);
     }
 
@@ -124,11 +124,17 @@
 
     private void OnApplyButtonClicked()
     {
-        foreach (var client in _selectedItems)
+        foreach (var client in _selectedClients)
         {
-            client.DesiredDelay = TimeSpan.FromMilliseconds(_desiredDelay);
+            client.DesiredPercentage = _desiredPercentage;
             client.DesiredMemoryAllocated = _desiredMemory;
         }
+    }
+
+    private IEnumerable<string> ValidatePercentage(int input)
+    {
+        if (input < 0 || input > 100)
+            yield return "Value must be between 0 and 100";
     }
 
 }
