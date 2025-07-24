@@ -9,7 +9,6 @@ public class ClientsInventoryService(
     ILogger<ClientsInventoryService> logger)
     : IClientsInventoryService
 {
-    private readonly ILogger<ClientsInventoryService> _logger = logger;
     private readonly CancellationToken _applicationStoppingToken = applicationLifetime.ApplicationStopping;
     private readonly TimeSpan _keepAliveInterval = TimeSpan.FromSeconds(configuration.GetValue<int>("KeepAliveIntervalSeconds"));
     private Task? _updaterTask;
@@ -22,7 +21,7 @@ public class ClientsInventoryService(
         EnsurePeriodicUpdateEnabled();
         using var scope = _clientsLock.EnterScope();
         
-        _logger.LogTrace("Received client report with ID: {0}", request.ClientId);
+        logger.LogTrace("Received client report with ID: {0}", request.ClientId);
         
         if (_clients.TryGetValue(request.ClientId, out var clientInfo))
         {
@@ -32,7 +31,7 @@ public class ClientsInventoryService(
             clientInfo.MemoryAllocated = request.MemoryAllocated;
             clientInfo.State = ClientState.Active;
             
-            _logger.LogTrace("Updating client with ID: {0}", clientInfo.Id);
+            logger.LogTrace("Updating client with ID: {0}", clientInfo.Id);
             ClientUpdated?.Invoke(this, clientInfo);
         }
         else
@@ -51,7 +50,7 @@ public class ClientsInventoryService(
             };
             _clients[clientInfo.Id] = clientInfo;
             
-            _logger.LogInformation("Added new client with ID: {0}", clientInfo.Id);
+            logger.LogInformation("Added new client with ID: {0}", clientInfo.Id);
             ClientAdded?.Invoke(this, clientInfo);
         }
         
@@ -104,13 +103,13 @@ public class ClientsInventoryService(
                     if (client.State == ClientState.Timeout)
                     {
                         _clients.Remove(client.Id);
-                        _logger.LogInformation("Removed client with ID: {0}", client.Id);
+                        logger.LogInformation("Removed client with ID: {0}", client.Id);
                         ClientRemoved?.Invoke(this, client);
                     }
                     else
                     {
                         client.State = ClientState.Timeout;
-                        _logger.LogInformation("First timeout for client with ID: {0}", client.Id);
+                        logger.LogInformation("First timeout for client with ID: {0}", client.Id);
                         ClientUpdated?.Invoke(this, client);
                     }
                 }

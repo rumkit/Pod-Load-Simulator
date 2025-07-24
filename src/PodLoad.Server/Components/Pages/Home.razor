@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using PodLoad.Common.Services
 @inject IHostInfoService HostInfoService
+@inject IConfiguration Configuration
 
 <PageTitle>Server info</PageTitle>
 
@@ -13,4 +14,6 @@
     Running on host: @HostInfoService.GetHostName()
     <br/>
     IP Address: @HostInfoService.GetHostIpv4Address()
+    <br />
+    Clients Keep-Alive Interval: @Configuration["KeepAliveIntervalSeconds"] seconds
 </MudAlert>

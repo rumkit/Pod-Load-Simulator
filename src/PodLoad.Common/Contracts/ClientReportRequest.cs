@@ -9,6 +9,6 @@ namespace PodLoad.Common.Contracts
         public string ClientHostName { get; set; }
         public IPAddress ClientIpAddress { get; set; }
         public TimeSpan Delay { get; set; }
-        public ulong MemoryAllocated { get; set; }
+        public uint MemoryAllocated { get; set; }
     }
 }
