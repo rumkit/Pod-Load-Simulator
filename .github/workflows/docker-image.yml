@@ -1,0 +1,22 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build Server Docker Image
+      working-directory: src
+      run: docker build . --file PodLoad.Server/Dockerfile --tag podload-server:$(date +%s)
+
+    - name: Build Client Docker Image
+      working-directory: src
+      run: docker build . --file PodLoad.Client/Dockerfile --tag podload-client:$(date +%s)
