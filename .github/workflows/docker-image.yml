@@ -28,7 +28,7 @@ jobs:
         context: "{{defaultContext}}:src"
         file: PodLoad.Server/Dockerfile
         push: true
-        tags: ghcr.io/rumkit/pod-load-simulator-server:${{ env.DOCKER_IMAGE_POSTFIX }}
+        tags: ghcr.io/rumkit/pod-load-simulator-server:${{ env.DOCKER_IMAGE_POSTFIX }},ghcr.io/rumkit/pod-load-simulator-server:latest
 
     - name: Build and push client image
       uses: docker/build-push-action@v6
@@ -36,4 +36,4 @@ jobs:
         context: "{{defaultContext}}:src"
         file: PodLoad.Client/Dockerfile
         push: true
-        tags: ghcr.io/rumkit/pod-load-simulator-client:${{ env.DOCKER_IMAGE_POSTFIX }}
+        tags: ghcr.io/rumkit/pod-load-simulator-client:${{ env.DOCKER_IMAGE_POSTFIX }},ghcr.io/rumkit/pod-load-simulator-server:latest

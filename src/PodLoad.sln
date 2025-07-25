@@ -7,6 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.dockerignore = .dockerignore
 		compose.yaml = compose.yaml
 		..\.gitignore = ..\.gitignore
+		.env = .env
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PodLoad.Server", "PodLoad.Server\PodLoad.Server.csproj", "{594D1544-72AB-4D8D-9282-7EDF6FAB039F}"

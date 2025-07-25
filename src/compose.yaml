@@ -1,6 +1,30 @@
-﻿services:
+﻿name: PodLoad Simulator
+services:
+  podload.server:
+    image: podload.server
+    build:
+      context: .
+      dockerfile: PodLoad.Server/Dockerfile
+    ports:
+      - 5000:${PODLOAD_SERVER_PORT}
+    environment:
+      ASPNETCORE_HTTP_PORTS: ${PODLOAD_SERVER_PORT}
+      KeepAliveIntervalSeconds: 10
+    
   podload.client:
     image: podload.client
     build:
       context: .
-      dockerfile: PodLoad.Client/Dockerfile
+      dockerfile: PodLoad.Client/Dockerfile      
+    deploy:
+      mode: replicated
+      replicas: 5
+    depends_on:
+      podload.server:
+        condition: service_started      
+    environment:
+      ClientSettings__DefaultMemory_Mb: 64
+      ClientSettings__DefaultPercentage: 0
+      ClientSettings__ServerAddress: podload.server
+      ClientSettings__ServerPort: ${PODLOAD_SERVER_PORT}
+      ClientSettings__ReportEndpoint: api/client-report    

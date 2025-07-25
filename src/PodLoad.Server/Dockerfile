@@ -2,6 +2,7 @@
 USER $APP_UID
 WORKDIR /app
 ENV ASPNETCORE_HTTP_PORTS=80
+ENV KeepAliveIntervalSeconds=10
 EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
