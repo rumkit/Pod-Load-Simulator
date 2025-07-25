@@ -36,4 +36,4 @@ jobs:
         context: "{{defaultContext}}:src"
         file: PodLoad.Client/Dockerfile
         push: true
-        tags: ghcr.io/rumkit/pod-load-simulator-client:${{ env.DOCKER_IMAGE_POSTFIX }},ghcr.io/rumkit/pod-load-simulator-server:latest
+        tags: ghcr.io/rumkit/pod-load-simulator-client:${{ env.DOCKER_IMAGE_POSTFIX }},ghcr.io/rumkit/pod-load-simulator-client:latest
