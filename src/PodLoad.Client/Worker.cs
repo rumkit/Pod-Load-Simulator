@@ -12,7 +12,7 @@ public class Worker(ILogger<Worker> logger, IConfiguration configuration, IHostI
         // Load defaults
         var clientSettings = configuration.GetSection("ClientSettings");
         var percentage = clientSettings.GetValue<int>("DefaultPercentage");
-        var memoryToAllocate = clientSettings.GetValue<int>("DefaultMemory_Mb");
+        var memoryToAllocate = clientSettings.GetValue<uint>("DefaultMemory_Mb");
         var clientId = Guid.CreateVersion7();
         var serverAddress = clientSettings.GetValue<string>("ServerAddress");
         var serverPort = clientSettings.GetValue<int>("ServerPort");
@@ -47,7 +47,7 @@ public class Worker(ILogger<Worker> logger, IConfiguration configuration, IHostI
                     ClientHostName = hostName,
                     ClientIpAddress = hostIpAddress.ToString(),
                     Percentage = percentage,
-                    MemoryAllocated = (uint)memoryToAllocate
+                    MemoryAllocated = memoryToAllocate
                 });
                 
                 // Send report request to server and parse response
@@ -58,10 +58,20 @@ public class Worker(ILogger<Worker> logger, IConfiguration configuration, IHostI
                     throw new ApplicationException("No response body from server's reply");
                 
                 // Adjust percentage and memory
-                percentage = clientReportResponse.DesiredPercentage;
-                cpuLoadSimulator.Percentage = percentage;
-                memoryToAllocate = (int)clientReportResponse.DesiredMemoryAllocated;
-                memoryKeeper.Allocate(memoryToAllocate * 1024 * 1024);
+                if (percentage != clientReportResponse.DesiredPercentage)
+                {
+                    percentage = clientReportResponse.DesiredPercentage;
+                    cpuLoadSimulator.Percentage = percentage;
+                    logger.LogInformation("New CPU load: {0}%", percentage);
+                }
+
+                if (memoryToAllocate != clientReportResponse.DesiredMemoryAllocated)
+                {
+                    memoryToAllocate = clientReportResponse.DesiredMemoryAllocated;
+                    memoryKeeper.Allocate(memoryToAllocate * 1024 * 1024);
+                    logger.LogInformation("New memory size: {0} MB", memoryToAllocate);;
+                }
+                
                 
                 // Set request timeout to a half of the keep-alive interval
                 requestTimeOut = clientReportResponse.KeepAliveInterval / 2;

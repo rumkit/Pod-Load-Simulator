@@ -35,6 +35,9 @@ public class CpuLoadSimulator
 
     private void SimulateCpuLoad()
     {
+        if (_percentage == 0)
+            return;
+        
         var internalToken = _internalCancellationTokenSource.Token;
         for (int i = 0; i < Environment.ProcessorCount; i++)
         {

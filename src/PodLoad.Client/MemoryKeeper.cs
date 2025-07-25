@@ -2,24 +2,32 @@
 
 namespace PodLoad.Client;
 
-public class MemoryKeeper : IDisposable
+public unsafe class MemoryKeeper : IDisposable
 {
-    private IntPtr _memoryChunk;
-    private int _previousChunkSize;
+    private uint _previousChunkSize;
+    private void* _memoryChunk; 
+    private bool _disposed;
     
-    public void Allocate(int bytesCount)
+    public void Allocate(uint bytesCount)
     {
+        ObjectDisposedException.ThrowIf(_disposed, typeof(MemoryKeeper));
+        
         if (bytesCount == _previousChunkSize)
             return;
         
-        if (_memoryChunk != IntPtr.Zero)
-            Marshal.FreeHGlobal(_memoryChunk);
         _previousChunkSize = bytesCount;
-        _memoryChunk = Marshal.AllocHGlobal(bytesCount);
+        NativeMemory.Free(_memoryChunk);
+        _memoryChunk = NativeMemory.Alloc(new UIntPtr(_previousChunkSize));
     }
     public void Dispose()
     {
-        if (_memoryChunk != IntPtr.Zero)
-            Marshal.FreeHGlobal(_memoryChunk);
+        _disposed = true;
+        NativeMemory.Free(_memoryChunk);
+        GC.SuppressFinalize(this);
+    }
+
+    ~MemoryKeeper()
+    {
+        NativeMemory.Free(_memoryChunk);
     }
 }
