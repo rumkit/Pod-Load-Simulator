@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: podload-server
-        image: ghcr.io/rumkit/pod-load-simulator-server:2025-07-25_1753442412
+        image: ghcr.io/rumkit/pod-load-simulator-server:latest
         ports:
         - containerPort: 80
         env:
