@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: podload-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: podload-server
+  template:
+    metadata:
+      labels:
+        app: podload-server
+    spec:
+      containers:
+      - name: podload-server
+        image: ghcr.io/rumkit/pod-load-simulator-server:2025-07-25_1753442412
+        ports:
+        - containerPort: 80
+        env:
+        - name: ASPNETCORE_HTTP_PORTS
+          value: "80"
+        - name: KeepAliveIntervalSeconds
+          value: "10"
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"

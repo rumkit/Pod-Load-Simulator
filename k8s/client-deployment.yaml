@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: podload-client
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: podload-client
+  template:
+    metadata:
+      labels:
+        app: podload-client
+    spec:
+      containers:
+      - name: podload-client
+        image: ghcr.io/rumkit/pod-load-simulator-client:latest
+        env:
+        - name: ClientSettings__DefaultMemory_Mb
+          value: "64"
+        - name: ClientSettings__DefaultPercentage
+          value: "0"
+        - name: ClientSettings__ServerAddress
+          value: "podload-server"
+        - name: ClientSettings__ServerPort
+          value: "80"
+        - name: ClientSettings__ReportEndpoint
+          value: "api/client-report"
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "64Mi"
