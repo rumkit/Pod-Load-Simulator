@@ -21,7 +21,7 @@ public class ClientsInventoryService(
         EnsurePeriodicUpdateEnabled();
         using var scope = _clientsLock.EnterScope();
         
-        logger.LogTrace("Received client report with ID: {0}", request.ClientId);
+        logger.LogTrace("Received client report with ID: {clientId}", request.ClientId);
         
         if (_clients.TryGetValue(request.ClientId, out var clientInfo))
         {
@@ -31,13 +31,13 @@ public class ClientsInventoryService(
             clientInfo.MemoryAllocated = request.MemoryAllocated;
             clientInfo.State = ClientState.Active;
             
-            logger.LogTrace("Updating client with ID: {0}", clientInfo.Id);
+            logger.LogTrace("Updating client with ID: {clientId}", clientInfo.Id);
             ClientUpdated?.Invoke(this, clientInfo);
         }
         else
         {
             // Create new client, fire event and return response from the created client
-            clientInfo = new ClientInfo()
+            clientInfo = new ClientInfo
             {
                 Id = request.ClientId,
                 HostName = request.ClientHostName,
@@ -50,11 +50,11 @@ public class ClientsInventoryService(
             };
             _clients[clientInfo.Id] = clientInfo;
             
-            logger.LogInformation("Added new client with ID: {0}", clientInfo.Id);
+            logger.LogInformation("Added new client with ID: {clientId}", clientInfo.Id);
             ClientAdded?.Invoke(this, clientInfo);
         }
         
-        return new ClientReportResponse()
+        return new ClientReportResponse
         {
             DesiredPercentage = clientInfo.DesiredPercentage,
             DesiredMemoryAllocated = clientInfo.DesiredMemoryAllocated,
@@ -94,7 +94,7 @@ public class ClientsInventoryService(
                 .Where(client => client.State == ClientState.Timeout || DateTime.Now - client.LastUpdated > _keepAliveInterval)
                 .ToArray();
 
-            if (timeOutedClients.Any())
+            if (timeOutedClients.Length != 0)
             {
                 using var scope = _clientsLock.EnterScope();
 
@@ -103,13 +103,13 @@ public class ClientsInventoryService(
                     if (client.State == ClientState.Timeout)
                     {
                         _clients.Remove(client.Id);
-                        logger.LogInformation("Removed client with ID: {0}", client.Id);
+                        logger.LogInformation("Removed client with ID: {clientId}", client.Id);
                         ClientRemoved?.Invoke(this, client);
                     }
                     else
                     {
                         client.State = ClientState.Timeout;
-                        logger.LogInformation("First timeout for client with ID: {0}", client.Id);
+                        logger.LogInformation("First timeout for client with ID: {clientId}", client.Id);
                         ClientUpdated?.Invoke(this, client);
                     }
                 }

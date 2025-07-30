@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-namespace PodLoad.Server.Models;
+﻿namespace PodLoad.Server.Models;
 
 public class ClientInfo
 {

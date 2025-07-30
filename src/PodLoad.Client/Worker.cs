@@ -26,26 +26,26 @@ public class Worker(ILogger<Worker> logger, IConfiguration configuration, IHostI
         memoryKeeper.Allocate(memoryToAllocate * 1024 * 1024);
         
         
-        logger.LogInformation("Started service on host: {0} with IP: {1}. Client ID: {2}", hostName, hostIpAddress, clientId);
-        logger.LogInformation("Using default params - Memory size: {0} MB, CPU Load: {1}%", memoryToAllocate, percentage);
+        logger.LogInformation("Started service on host: {hostName} with IP: {ipAddress}. Client ID: {clientId}", hostName, hostIpAddress, clientId);
+        logger.LogInformation("Using default params - Memory size: {memorySize} MB, CPU Load: {cpuLoad}%", memoryToAllocate, percentage);
         
         // Build report URI and prepare http client
-        var uriBuilder = new UriBuilder() { Scheme = "http", Host = serverAddress, Port = serverPort, Path = reportEndpoint };
+        var uriBuilder = new UriBuilder { Scheme = "http", Host = serverAddress, Port = serverPort, Path = reportEndpoint };
         using var client = new HttpClient();
         var reportUri = uriBuilder.Uri;
 
-        logger.LogInformation("Reports endpoint set to {0}", reportUri);
+        logger.LogInformation("Reports endpoint set to {reportsUrl}", reportUri);
         
         while (!stoppingToken.IsCancellationRequested)
         {
             TimeSpan requestTimeOut;
             try
             {
-                using var content = JsonContent.Create(new ClientReportRequest()
+                using var content = JsonContent.Create(new ClientReportRequest
                 {
                     ClientId = clientId,
                     ClientHostName = hostName,
-                    ClientIpAddress = hostIpAddress.ToString(),
+                    ClientIpAddress = hostIpAddress,
                     Percentage = percentage,
                     MemoryAllocated = memoryToAllocate
                 });
@@ -62,14 +62,14 @@ public class Worker(ILogger<Worker> logger, IConfiguration configuration, IHostI
                 {
                     percentage = clientReportResponse.DesiredPercentage;
                     cpuLoadSimulator.Percentage = percentage;
-                    logger.LogInformation("New CPU load: {0}%", percentage);
+                    logger.LogInformation("New CPU load: {cpuLoad}%", percentage);
                 }
 
                 if (memoryToAllocate != clientReportResponse.DesiredMemoryAllocated)
                 {
                     memoryToAllocate = clientReportResponse.DesiredMemoryAllocated;
                     memoryKeeper.Allocate(memoryToAllocate * 1024 * 1024);
-                    logger.LogInformation("New memory size: {0} MB", memoryToAllocate);;
+                    logger.LogInformation("New memory size: {memorySize} MB", memoryToAllocate);
                 }
                 
                 

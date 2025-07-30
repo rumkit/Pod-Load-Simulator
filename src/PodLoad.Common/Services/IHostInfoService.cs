@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-namespace PodLoad.Common.Services
+﻿namespace PodLoad.Common.Services
 {
     public interface IHostInfoService
     {

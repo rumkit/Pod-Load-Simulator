@@ -72,7 +72,7 @@
         <MudText>No clients connected</MudText>
     </NoRecordsContent>
     <PagerContent>
-        <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }" />
+        <MudTablePager PageSizeOptions="new [] { 10, 25, 50, 100 }" />
     </PagerContent>
 </MudTable>
 
@@ -131,9 +131,9 @@
         }
     }
 
-    private IEnumerable<string> ValidatePercentage(int input)
+    private static IEnumerable<string> ValidatePercentage(int input)
     {
-        if (input < 0 || input > 100)
+        if (input is < 0 or > 100)
             yield return "Value must be between 0 and 100";
     }
 

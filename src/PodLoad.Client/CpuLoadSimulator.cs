@@ -16,7 +16,7 @@ public class CpuLoadSimulator
             if(_percentage == value) 
                 return;
             
-            if (value < 0 || value > 100)
+            if (value is < 0 or > 100)
                 throw new ArgumentOutOfRangeException(nameof(Percentage), "Percentage must be between 0 and 100");
             
             _percentage = value;
@@ -39,11 +39,11 @@ public class CpuLoadSimulator
             return;
         
         var internalToken = _internalCancellationTokenSource.Token;
-        for (int i = 0; i < Environment.ProcessorCount; i++)
+        for (var i = 0; i < Environment.ProcessorCount; i++)
         {
             var thread = new Thread(() =>
             {
-                Stopwatch watch = new Stopwatch();
+                var watch = new Stopwatch();
                 watch.Start();
                 while (!_externalStoppingToken.IsCancellationRequested && !internalToken.IsCancellationRequested)
                 {
